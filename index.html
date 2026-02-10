@@ -4,96 +4,316 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emotion AI - Facial Emotion Recognition</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <!-- Background particles -->
-    <script>
-        for (let i = 0; i < 15; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.width = Math.random() * 100 + 50 + 'px';
-            particle.style.height = particle.style.width;
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.top = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 5 + 's';
-            document.body.appendChild(particle);
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - Inter (modern, clean font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
-    </script>
+        
+        /* Smooth animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Emoji animation */
+        .emoji-bounce {
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
 
-    <div class="container">
-        <header>
-            <h1>
-                🧠 Emotion AI ✨
+        /* Custom gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* File input styling */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
+    
+    <!-- Main Container -->
+    <div class="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="max-w-3xl mx-auto text-center mb-8 sm:mb-12">
+            <div class="mb-4">
+                <span class="text-6xl sm:text-7xl emoji-bounce inline-block">🎭</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4">
+                Emotion <span class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">AI</span>
             </h1>
-            <p class="subtitle">Discover the emotions hidden in every face</p>
-        </header>
-
-        <div class="main-grid">
-            <!-- Upload Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    📸 Upload Image
-                </div>
-
-                <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                
-                <div id="uploadArea" class="upload-area">
-                    <div class="upload-icon">⬆️</div>
-                    <div class="upload-text">Click to upload an image</div>
-                    <div class="upload-subtext">Supports JPG, PNG (max 10MB)</div>
-                </div>
-
-                <div id="previewContainer" class="preview-container">
-                    <img id="imagePreview" alt="Preview">
-                    <button id="removeBtn" class="remove-btn">×</button>
-                </div>
-
-                <button id="analyzeBtn" class="analyze-btn">
-                    ✨ Analyze Emotion
-                </button>
-
-                <div id="loader" class="loader"></div>
-
-                <div id="errorMessage" class="error-message">
-                    <span class="error-icon">⚠️</span>
-                    <span id="errorText"></span>
-                </div>
-            </div>
-
-            <!-- Results Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    🧠 Analysis Results
-                </div>
-
-                <div id="resultsEmpty" class="results-empty">
-                    <div class="results-empty-icon">✨</div>
-                    <p>Upload an image to see the magic!</p>
-                </div>
-
-                <div id="resultMain" class="result-main">
-                    <div id="resultEmoji" class="result-emoji"></div>
-                    <div id="resultEmotion" class="result-emotion"></div>
-                    <div id="resultConfidence" class="result-confidence"></div>
-                </div>
-
-                <div id="predictionsList" class="predictions-list">
-                    <h3 style="color: white; margin-bottom: 20px; font-size: 1.2rem;">Detailed Analysis</h3>
-                    <div id="predictionsContainer"></div>
-                </div>
-
-                <button id="resetBtn" class="reset-btn">
-                    🔄 Analyze Another Image
-                </button>
-            </div>
+            <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
+                Upload a photo and let our AI analyze facial emotions in real-time
+            </p>
         </div>
 
-        <footer>
-            <p>Powered by advanced AI emotion recognition technology</p>
-        </footer>
+        <!-- Main Card -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
+                
+                <!-- Upload Section -->
+                <div class="p-6 sm:p-8 lg:p-10">
+                    
+                    <!-- Image Preview Area -->
+                    <div id="uploadArea" class="border-3 border-dashed border-gray-300 rounded-2xl p-6 sm:p-8 lg:p-12 text-center mb-6 bg-gray-50 hover:bg-gray-100 transition-all duration-300">
+                        <img id="preview" class="hidden max-w-full h-auto rounded-xl mx-auto shadow-lg mb-4" alt="Preview">
+                        
+                        <div id="uploadPlaceholder">
+                            <svg class="mx-auto h-16 w-16 sm:h-20 sm:w-20 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-base sm:text-lg text-gray-600 mb-2 font-medium">Click to upload or drag and drop</p>
+                            <p class="text-xs sm:text-sm text-gray-500">PNG, JPG, WEBP up to 10MB</p>
+                        </div>
+                    </div>
+
+                    <!-- Upload Button -->
+                    <div class="file-input-wrapper w-full mb-4">
+                        <label class="flex items-center justify-center w-full px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="text-sm sm:text-base">Choose Image</span>
+                            <input type="file" id="imageInput" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+
+                    <!-- Analyze Button -->
+                    <button 
+                        onclick="predictEmotion()" 
+                        id="analyzeBtn"
+                        class="w-full px-6 py-3 sm:py-4 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        disabled
+                    >
+                        <span id="btnText" class="text-sm sm:text-base">Analyze Emotion</span>
+                        <span id="btnLoader" class="hidden">
+                            <svg class="animate-spin h-5 w-5 inline-block" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Analyzing...
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultSection" class="hidden border-t border-gray-200 bg-gradient-to-br from-purple-50 to-pink-50 p-6 sm:p-8 lg:p-10">
+                    
+                    <!-- Main Emotion Display -->
+                    <div class="text-center mb-6 sm:mb-8">
+                        <p class="text-sm sm:text-base text-gray-600 font-medium mb-2">Detected Emotion</p>
+                        <div class="flex items-center justify-center gap-3 sm:gap-4 mb-3">
+                            <span id="emotionEmoji" class="text-5xl sm:text-6xl lg:text-7xl"></span>
+                            <h2 id="emotionText" class="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"></h2>
+                        </div>
+                        <div class="inline-block px-4 sm:px-6 py-2 sm:py-3 bg-white rounded-full shadow-md">
+                            <p id="confidenceText" class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900"></p>
+                        </div>
+                    </div>
+
+                    <!-- All Predictions -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">All Emotion Probabilities</h3>
+                        <div id="allPredictions" class="space-y-3"></div>
+                    </div>
+
+                    <!-- Try Another Button -->
+                    <button 
+                        onclick="resetApp()" 
+                        class="w-full mt-6 px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-md hover:shadow-lg border-2 border-gray-200"
+                    >
+                        Try Another Image
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8 text-xs sm:text-sm text-gray-600">
+                <p>Powered by ResNet50 + CBAM • Built with FastAPI & ONNX Runtime</p>
+                <p>Built with ❤️ by Apata Abdulmalik (belmont_browne)</p>
+            </div>
+        </div>
     </div>
 
-    <script src="index.js"></script>
+    <script>
+        const API_URL = 'http://localhost:8000';  // Change to your Render URL when deployed
+        
+        const emotionEmojis = {
+            'happy': '😊',
+            'sad': '😢',
+            'angry': '😠',
+            'surprised': '😲',
+            'fearful': '😨',
+            'disgusted': '🤢'
+        };
+
+        const emotionColors = {
+            'happy': 'bg-yellow-100 border-yellow-300',
+            'sad': 'bg-blue-100 border-blue-300',
+            'angry': 'bg-red-100 border-red-300',
+            'surprised': 'bg-purple-100 border-purple-300',
+            'fearful': 'bg-orange-100 border-orange-300',
+            'disgusted': 'bg-green-100 border-green-300'
+        };
+
+        // Handle file selection
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Enable analyze button
+            document.getElementById('analyzeBtn').disabled = false;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('preview');
+                const placeholder = document.getElementById('uploadPlaceholder');
+                
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+                preview.classList.add('fade-in');
+                placeholder.classList.add('hidden');
+                
+                // Hide results if showing
+                document.getElementById('resultSection').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        async function predictEmotion() {
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files[0]) {
+                alert('Please select an image first!');
+                return;
+            }
+
+            // Show loading state
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+            
+            analyzeBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayResults(data);
+
+            } catch (error) {
+                alert('Error analyzing image: ' + error.message);
+                analyzeBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        }
+
+        function displayResults(data) {
+            const emotion = data.emotion;
+            const confidence = data.confidence;
+            const allPredictions = data.all_predictions;
+
+            // Update main emotion display
+            document.getElementById('emotionEmoji').textContent = emotionEmojis[emotion];
+            document.getElementById('emotionText').textContent = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+            document.getElementById('confidenceText').textContent = `${(confidence * 100).toFixed(1)}% confident`;
+
+            // Update all predictions
+            const predictionsHTML = Object.entries(allPredictions)
+                .sort((a, b) => b[1].probability - a[1].probability)
+                .map(([emotionName, pred]) => {
+                    const percentage = pred.probability * 100;
+                    return `
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl sm:text-3xl">${emotionEmojis[emotionName]}</span>
+                            <div class="flex-1">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-xs sm:text-sm font-medium text-gray-700 capitalize">${emotionName}</span>
+                                    <span class="text-xs sm:text-sm font-semibold text-gray-900">${percentage.toFixed(1)}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
+                                    <div class="h-2 sm:h-2.5 rounded-full transition-all duration-500 ${
+                                        emotionName === emotion 
+                                            ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
+                                            : 'bg-gray-400'
+                                    }" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            document.getElementById('allPredictions').innerHTML = predictionsHTML;
+
+            // Show results section with animation
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.remove('hidden');
+            resultSection.classList.add('fade-in');
+
+            // Reset button state
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+            
+            analyzeBtn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnLoader.classList.add('hidden');
+
+            // Scroll to results on mobile
+            if (window.innerWidth < 768) {
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function resetApp() {
+            document.getElementById('preview').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('imageInput').value = '';
+            document.getElementById('analyzeBtn').disabled = true;
+        }
+    </script>
 </body>
 </html>
